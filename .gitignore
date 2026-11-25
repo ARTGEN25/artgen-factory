@@ -1,0 +1,14 @@
+# Secrets & env
+.env
+*.key
+*.pem
+
+# Python
+.venv/
+__pycache__/
+
+# Node
+node_modules/
+
+# Runner artifacts
+downloaded_out/

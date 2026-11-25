@@ -1,0 +1,14 @@
+# ARTGEN Factory — Agent Rules
+
+## Workflow
+1. Always run `git pull --rebase` before starting work.
+2. Read ONLY `STATE.md` and `docs/INDEX.md` first. Then open only the matching spec/memory file.
+3. Update `STATE.md` (and the relevant memory/spec file) and push after every task.
+
+## Safety
+- Keep Cloud Shell light: no heavy builds or large installs in `$HOME`.
+- Never commit secrets (`.env`, keys, tokens); use GitHub secrets only.
+
+## Execution
+- Headless runs: max 3 fix attempts, then stop and report the blocker.
+- Always use `actions/checkout@v7` and `actions/setup-python@v7` (Node 24 native).

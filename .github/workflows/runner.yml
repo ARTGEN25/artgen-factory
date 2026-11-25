@@ -1,0 +1,118 @@
+name: Factory Runner
+
+on:
+  workflow_dispatch:
+    inputs:
+      task_id:
+        description: 'Task ID'
+        required: false
+        default: 'manual-check'
+        type: string
+      mode:
+        description: 'Run mode'
+        required: true
+        default: 'CMD'
+        type: choice
+        options:
+          - CMD
+          - AGENT
+      payload:
+        description: 'Command (CMD) or prompt (AGENT)'
+        required: false
+        default: 'python3 --version'
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Set up Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+
+      - name: Run CMD
+        id: cmd
+        if: inputs.mode == 'CMD'
+        env:
+          PAYLOAD: ${{ inputs.payload }}
+        run: bash -lc "$PAYLOAD"
+
+      - name: Run AGENT
+        id: agent
+        if: inputs.mode == 'AGENT'
+        env:
+          PAYLOAD: ${{ inputs.payload }}
+          TASK_ID: ${{ inputs.task_id }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: |
+          set -euo pipefail
+          curl -fsSL https://opencode.ai/v2/install | bash
+          "$HOME/.opencode/bin/opencode" run --auto --model google/gemini-3.5-flash-lite "$PAYLOAD"
+          git config user.name "artgen-bot"
+          git config user.email "artgen-bot@users.noreply.github.com"
+          if [ -n "$(git status --porcelain)" ]; then
+            git add -A
+            git commit -m "artgen-bot: ${TASK_ID:-artgen-factory}"
+            git push origin HEAD:main
+          else
+            echo "No changes to commit"
+          fi
+
+      - name: Report to ARTGEN Brain
+        if: always()
+        env:
+          APPS_SCRIPT_URL: ${{ secrets.APPS_SCRIPT_URL }}
+          APPS_SCRIPT_TOKEN: ${{ secrets.APPS_SCRIPT_TOKEN }}
+          TASK_ID: ${{ inputs.task_id }}
+          MODE: ${{ inputs.mode }}
+          JOB_STATUS: ${{ job.status }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          python - <<'PY'
+          import json, os, urllib.request, urllib.error
+
+          url = os.environ.get("APPS_SCRIPT_URL", "").strip()
+          if not url:
+              print("Webhook skipped: APPS_SCRIPT_URL secret is not set")
+              raise SystemExit(0)
+
+          task_id = (os.environ.get("TASK_ID") or "").strip() or "artgen-factory"
+          payload = {
+              "token": os.environ.get("APPS_SCRIPT_TOKEN", ""),
+              "source": task_id,
+              "status": os.environ.get("JOB_STATUS", "unknown"),
+              "message": "mode=%s run=%s" % (
+                  os.environ.get("MODE", ""),
+                  os.environ.get("RUN_URL", ""),
+              ),
+          }
+
+          req = urllib.request.Request(
+              url,
+              data=json.dumps(payload).encode("utf-8"),
+              headers={"Content-Type": "application/json"},
+              method="POST",
+          )
+
+          try:
+              with urllib.request.urlopen(req, timeout=30) as resp:
+                  body = resp.read().decode("utf-8", "replace")
+                  print("Webhook HTTP status:", resp.status)
+                  print("Webhook response:", body[:500])
+          except urllib.error.HTTPError as err:
+              body = err.read().decode("utf-8", "replace")
+              print("Webhook HTTP status:", err.code)
+              print("Webhook response:", body[:500])
+              raise
+          except Exception as err:
+              print("Webhook request failed:", type(err).__name__, str(err))
+              raise
+          PY
