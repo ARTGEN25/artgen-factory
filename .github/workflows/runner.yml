@@ -34,6 +34,9 @@ jobs:
   run:
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    concurrency:
+      group: artgen-factory-runner
+      cancel-in-progress: false
     steps:
       - name: Checkout
         uses: actions/checkout@v7
@@ -64,12 +67,27 @@ jobs:
           git config user.email "artgen-bot@users.noreply.github.com"
           curl -fsSL https://opencode.ai/v2/install | bash
           "$HOME/.opencode/bin/opencode" run --auto --model "$MODEL" "$PAYLOAD"
+
+      - name: Commit AGENT changes
+        if: always() && inputs.mode == 'AGENT'
+        env:
+          TASK_ID: ${{ inputs.task_id }}
+        run: |
+          set -uo pipefail
+          git config user.name "artgen-bot"
+          git config user.email "artgen-bot@users.noreply.github.com"
+          git fetch origin main -q || true
           if [ -n "$(git status --porcelain)" ]; then
             git add -A
             git commit -m "artgen-bot: ${TASK_ID:-artgen-factory}"
+          else
+            echo "No working-tree changes"
+          fi
+          AHEAD=$(git rev-list --count origin/main..HEAD 2>/dev/null || echo 0)
+          if [ "$AHEAD" != "0" ]; then
             git push origin HEAD:main
           else
-            echo "No changes to commit"
+            echo "Nothing to push"
           fi
 
       - name: Report to ARTGEN Brain
