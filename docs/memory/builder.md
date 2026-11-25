@@ -8,6 +8,8 @@ Concise bullet-point memory for implementation. Append, do not rewrite history.
 
 ## Implemented
 - **2026-11-25** — `.github/workflows/runner.yml` with `CMD` and `AGENT` modes + always-on webhook report.
+- **2026-11-25** — Google Doc dispatch confirmed working (webhook `doPost` creates the Drive log doc).
+- **2026-11-25** — `apps/sys_digest/`: `format_digest()` parses JSON status payloads into a Markdown digest; CLI via stdin or file path; 4 pytest tests passing.
 
 ## Gotchas
 - Never interpolate user payload into `run:` directly; pass it via `env:`.

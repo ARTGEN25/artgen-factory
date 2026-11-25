@@ -1,6 +1,6 @@
 # ARTGEN Factory — State
 
-- **Status:** active — hardening + cross-checks done
+- **Status:** active — sys_digest formatter added, tests green
 - **Last updated:** 2026-11-25
 - **Current task:** none
 - **AGENT default model:** `opencode/deepseek-v4.1-flash-free` (free, verified)
@@ -11,6 +11,7 @@
   - form trigger end-to-end: valid submit `DISPATCHED`, wrong PIN `UNAUTHORIZED_FORM`
   - webhook `doPost`: row + Drive log doc created (`notify-path-test`, row 10)
   - hardening: `concurrency` + always-run AGENT commit step (`262804d`)
+  - system status digest formatter: `apps/sys_digest/` (pytest 4 passed)
 - **Known gaps:**
   - Task/Calendar/Mail delivery not independently verified (try/catch hides errors).
   - `Runs_Log` timestamps appear ~8h behind GitHub UTC (check spreadsheet timezone).
