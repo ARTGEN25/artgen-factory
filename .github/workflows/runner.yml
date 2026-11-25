@@ -54,10 +54,10 @@ jobs:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         run: |
           set -euo pipefail
-          curl -fsSL https://opencode.ai/v2/install | bash
-          "$HOME/.opencode/bin/opencode" run --auto --model google/gemini-3.5-flash-lite "$PAYLOAD"
           git config user.name "artgen-bot"
           git config user.email "artgen-bot@users.noreply.github.com"
+          curl -fsSL https://opencode.ai/v2/install | bash
+          "$HOME/.opencode/bin/opencode" run --auto --model google/gemini-3.5-flash-lite "$PAYLOAD"
           if [ -n "$(git status --porcelain)" ]; then
             git add -A
             git commit -m "artgen-bot: ${TASK_ID:-artgen-factory}"
