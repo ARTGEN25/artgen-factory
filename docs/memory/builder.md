@@ -13,6 +13,12 @@ Concise bullet-point memory for implementation. Append, do not rewrite history.
 - Never interpolate user payload into `run:` directly; pass it via `env:`.
 - Commit/push in `AGENT` mode only when `git status --porcelain` is non-empty.
 - Never print `APPS_SCRIPT_URL` / `APPS_SCRIPT_TOKEN` / `GEMINI_API_KEY`.
+- **Node 24 actions:** always `actions/checkout@v7` + `actions/setup-python@v7`; v4/v5 emit Node 20 deprecation warnings and annotations.
+- **Git identity first in CI:** set `git config user.name/user.email` BEFORE running OpenCode. With `--auto` it may commit on its own; otherwise it fails with "Author identity unknown".
+- **Apps Script redirects:** web app GETs return 302 to `script.googleusercontent.com`; use `curl -L` (or urllib, which follows redirects) or you get sign-in HTML instead of JSON.
+- **Gemini free tier ~15 RPM** on `gemini-3.5-flash-lite`: bursts hit 429. Keep prompts small, add retry/backoff, or use the free DeepSeek model.
+- **Keep memory current:** update `STATE.md` and `docs/INDEX.md` after every task, then commit/push; otherwise the next agent starts blind.
+- Prefer an always-run `Commit AGENT changes` step (`if: always() && mode == 'AGENT'`) plus a `concurrency` group so failed agents still leave a clean, pushed tree.
 
 ## Run Outcomes
 - **2026-11-25** — `45639839600`: AGENT + gemini, agent self-commit/push ✅, pytest 2 passed, webhook 200.
