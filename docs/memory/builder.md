@@ -15,4 +15,6 @@ Concise bullet-point memory for implementation. Append, do not rewrite history.
 - Never print `APPS_SCRIPT_URL` / `APPS_SCRIPT_TOKEN` / `GEMINI_API_KEY`.
 
 ## Run Outcomes
-- (none yet)
+- **2026-11-25** — `45639839600`: AGENT + gemini, agent self-commit/push ✅, pytest 2 passed, webhook 200.
+- **2026-11-25** — `45642221498`: fallback commit path ✅ (`artgen-bot: fallback-path-test`), webhook 200.
+- **2026-11-25** — `45642426120`: free model `opencode/deepseek-v4.1-flash-free` ✅, fallback commit, webhook 200.

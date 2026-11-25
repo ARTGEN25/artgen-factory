@@ -24,7 +24,7 @@ on:
       model:
         description: 'Model for AGENT mode (provider/model)'
         required: false
-        default: 'google/gemini-3.5-flash-lite'
+        default: 'opencode/deepseek-v4.1-flash-free'
         type: string
 
 permissions:
