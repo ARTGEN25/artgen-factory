@@ -1,0 +1,1 @@
+"""Hello Artgent app package."""

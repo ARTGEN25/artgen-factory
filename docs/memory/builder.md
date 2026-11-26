@@ -6,7 +6,7 @@ Concise bullets only. Keep this file <= 35 lines.
 - **2026-11-25** — `apps/sys_digest/`: JSON status digest to Markdown; CLI via stdin/file; 4 pytest tests passing.
 - **2026-11-25** — `runner.yml`: CMD + AGENT modes, always-on webhook report, concurrency + always-run commit.
 - **2026-11-26** — Re-verified `apps/sys_digest/` digest + CLI unchanged; 2 pytest tests passing (run in `/tmp/opencode/venv`).
-- **2026-11-26** — `apps/hello_artgent/`: `get_greeting()` + argparse CLI; empty/whitespace → ValueError, CLI exit 2; 8 pytest tests passing.
+- **2026-11-26** — `apps/hello_artgent/`: `get_greeting()` + `--name` CLI; non-str/empty → ValueError, bad CLI input → exit 1; 9 pytest tests passing.
 
 ## CI
 - Always use `actions/checkout@v7` + `actions/setup-python@v7` (Node 24 native).
