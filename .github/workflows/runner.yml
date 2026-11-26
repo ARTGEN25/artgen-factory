@@ -51,7 +51,9 @@ jobs:
         if: inputs.mode == 'CMD'
         env:
           PAYLOAD: ${{ inputs.payload }}
-        run: bash -lc "$PAYLOAD"
+        run: |
+          set -o pipefail
+          bash -lc "$PAYLOAD" 2>&1 | tee /tmp/artgen_run.log
 
       - name: Run AGENT
         id: agent
@@ -66,7 +68,7 @@ jobs:
           git config user.name "artgen-bot"
           git config user.email "artgen-bot@users.noreply.github.com"
           curl -fsSL https://opencode.ai/v2/install | bash
-          "$HOME/.opencode/bin/opencode" run --auto --model "$MODEL" "$PAYLOAD"
+          "$HOME/.opencode/bin/opencode" run --auto --model "$MODEL" "$PAYLOAD" 2>&1 | tee /tmp/artgen_run.log
 
       - name: Commit AGENT changes
         if: always() && inputs.mode == 'AGENT'
@@ -109,14 +111,29 @@ jobs:
               raise SystemExit(0)
 
           task_id = (os.environ.get("TASK_ID") or "").strip() or "artgen-factory"
+          mode = (os.environ.get("MODE") or "").strip() or "CMD"
+          status = (os.environ.get("JOB_STATUS") or "").strip() or "unknown"
+          run_url = (os.environ.get("RUN_URL") or "").strip()
+
+          # Last 12000 chars of captured stdout+stderr, if the step produced any.
+          log_tail = ""
+          log_path = "/tmp/artgen_run.log"
+          if os.path.exists(log_path):
+              try:
+                  with open(log_path, "r", encoding="utf-8", errors="replace") as fh:
+                      log_tail = fh.read()[-12000:]
+              except Exception as err:
+                  print("Could not read run log:", type(err).__name__)
+
           payload = {
               "token": os.environ.get("APPS_SCRIPT_TOKEN", ""),
               "source": task_id,
-              "status": os.environ.get("JOB_STATUS", "unknown"),
-              "message": "mode=%s run=%s" % (
-                  os.environ.get("MODE", ""),
-                  os.environ.get("RUN_URL", ""),
-              ),
+              "task_id": task_id,
+              "mode": mode,
+              "status": status,
+              "message": "mode=%s task=%s status=%s" % (mode, task_id, status),
+              "run_url": run_url,
+              "full_log": log_tail,
           }
 
           req = urllib.request.Request(
