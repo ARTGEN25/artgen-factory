@@ -1,18 +1,6 @@
 # ARTGEN Factory — State
 
-- **Status:** active — sys_digest formatter added, tests green
-- **Last updated:** 2026-11-25
-- **Current task:** none
-- **AGENT default model:** `opencode/deepseek-v4.1-flash-free` (free, verified)
-- **Verified paths:**
-  - agent self-commit + push (`a779133`)
-  - workflow fallback commit + push (`965c26f`, `1093fd4`)
-  - free-model capability (`apps/free_model_check/note.txt`)
-  - form trigger end-to-end: valid submit `DISPATCHED`, wrong PIN `UNAUTHORIZED_FORM`
-  - webhook `doPost`: row + Drive log doc created (`notify-path-test`, row 10)
-  - hardening: `concurrency` + always-run AGENT commit step (`262804d`)
-  - system status digest formatter: `apps/sys_digest/` (pytest 4 passed)
-- **Known gaps:**
-  - Task/Calendar/Mail delivery not independently verified (try/catch hides errors).
-  - `Runs_Log` timestamps appear ~8h behind GitHub UTC (check spreadsheet timezone).
-- **Next step:** none
+- **Status:** READY
+- **Last completed:** Step 1.1 cleanup & memory baseline
+- **Next step:** Phase 2/3 Orchestrator v3 integration
+- **Last updated:** 2026-11-26
